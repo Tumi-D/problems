@@ -4,12 +4,20 @@ abstract class Payroll
 {
   public $hours;
   const WORK_HOURS = 40;
+  public $rate;
+  protected $lightBlue="\e[94m";
+  protected $green ="\e[32m";
+  protected $concat = "\e[0m";
   public function __construct($hours, $rate = 50)
   {
     $this->hours = $hours;
     $this->rate =  $rate;
   }
   abstract public function CalculatePayroll(): float;
+  public function __destruct()
+  {
+    echo "$this->lightBlue The employee is to be paid {$this->concat}  {$this->green}" . number_format($this->CalculatePayroll(), 2) . "RM {$this->concat}";
+  }
 }
 
 
@@ -68,51 +76,52 @@ function collectInput()
 
 function runStaffPayRoll()
 {
+  $blue ="\e[34m";
+  $concat ="\e[0m";
+  $yellow ="\e[33m";
+  $red ="\e[31m";
+  $magenta ="\e[35m";
   $run = "";
   do {
-    echo "\n\n\nPRESS ANY KEY TO RUN PROGRAM OR 'exit' TO STOP THE PROGRAM \n";
+    echo "\n\n$magenta PRESS ANY KEY TO RUN PROGRAM OR 'exit' TO STOP THE PROGRAM $concat \n";
     $run = collectInput();
     if ($run == "exit") {
       break;
     }
-    echo "\n\nWELCOME TO PAYROLL APPLICATION\n";
+    echo "\n\n $blue WELCOME TO PAYROLL APPLICATION \n";
     echo "******************************\n\n";
     echo "Please select employee status.\n\n";
     echo "1. FULL TIME EMPLOYEES\n";
-    echo "2. PART TIME EMPLOYEES\n";
-    echo "NB: if you wish to use default rate leave empty and press enter\n";
-    echo "TYPE CMD+C exit program \n\n";
+    echo "2. PART TIME EMPLOYEES\n $concat";
+    echo "$yellow NB: If you wish to use default rate leave empty and press enter\n";
+    echo "        TYPE CMD+C exit program $concat \n\n";
     do {
       $employeeStatus = collectInput();
       if ($employeeStatus <> "1" && $employeeStatus <> "2") {
-        echo "Please select correct employee status.\n";
+        echo "$red Please select correct employee status. $concat \n";
       }
     } while ($employeeStatus <>  "1" && $employeeStatus <> "2");
 
-    echo "Please enter hours worked. ";
+    echo "$blue Please enter hours worked: $concat";
     $hours = collectInput();
     echo "\n";
-    echo "Please enter rate in RM ";
+    echo "$blue Please enter rate in RM: $concat";
     $rate = collectInput();
     echo "\n";
     if ($employeeStatus == "1" && $rate != "") {
-      $staffPayroll = new FullTime(floatval($hours), floatval($rate));
-      echo "The employee is to be paid " . number_format($staffPayroll->CalculatePayroll(), 2) . " RM";
+      new FullTime(floatval($hours), floatval($rate));
     } elseif ($employeeStatus == "1" && $rate == "") {
-      $staffPayroll = new FullTime(floatval($hours));
-      echo "The employee is to be paid " . number_format($staffPayroll->CalculatePayroll(), 2) . " RM";
+      new FullTime(floatval($hours));
     } elseif ($employeeStatus == "2" && $rate != "") {
-      $staffPayroll = new PartTime(floatval($hours), floatval($rate));
-      echo "The employee is to be paid " . number_format($staffPayroll->CalculatePayroll(), 2) . " RM";
+      new PartTime(floatval($hours), floatval($rate));
     } elseif ($employeeStatus == "2" && $rate == "") {
-      $staffPayroll = new PartTime(floatval($hours));
-      echo "The employee is to be paid " . number_format($staffPayroll->CalculatePayroll(), 2) . " RM";
+      new PartTime(floatval($hours));
     } else {
       echo "The hours : $hours entered and Rate : $rate. Please make sure they are valid";
       exit;
     }
   } while ($run != "exit");
-  echo "\nGOODBYE ! PROGRAM EXITED";
+  echo "\n $yellow GOODBYE ! PROGRAM EXITED $concat";
 }
 
 runStaffPayRoll();
