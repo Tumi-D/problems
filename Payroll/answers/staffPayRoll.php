@@ -2,17 +2,10 @@
 
 abstract class Payroll
 {
-  public $hours;
-  const WORK_HOURS = 40;
-  public $rate;
+ 
   protected $lightBlue="\e[94m";
   protected $green ="\e[32m";
   protected $concat = "\e[0m";
-  public function __construct($hours, $rate = 50)
-  {
-    $this->hours = $hours;
-    $this->rate =  $rate;
-  }
   abstract public function CalculatePayroll(): float;
   public function __destruct()
   {
@@ -20,21 +13,24 @@ abstract class Payroll
   }
 }
 
-
-class FullTime extends Payroll
+trait CalCulateEmployeePayRoll 
 {
-  private $overTimeRate = 40;
-  private $salary = 0.00;
+  public $overTimeRate;
+  public $hours;
+  public $rate;
+  protected $salary;
+  protected $workHours = 40;
+
   public function CalculatePayroll(): float
   {
     switch ($this->hours) {
-      case  $this->hours <= self::WORK_HOURS &&  $this->hours > 0:
+      case  $this->hours <= $this->workHours &&  $this->hours > 0:
         $this->salary =  $this->rate * $this->hours;
         return  $this->salary;
         break;
-      case  $this->hours > self::WORK_HOURS:
-        $normalWage =  $this->rate *  self::WORK_HOURS;
-        $this->salary =  $normalWage + (($this->hours - self::WORK_HOURS) * $this->overTimeRate);
+      case  $this->hours > $this->workHours:
+        $normalWage =  $this->rate * $this->workHours;
+        $this->salary =  $normalWage + (($this->hours - $this->workHours) * $this->overTimeRate);
         return $this->salary;
         break;
       default:
@@ -44,27 +40,33 @@ class FullTime extends Payroll
   }
 }
 
+
+
+
+class FullTime extends Payroll
+{
+  
+ use CalCulateEmployeePayRoll;
+ public function __construct($hours, $rate = 50)
+ {
+   $this->hours = $hours;
+   $this->rate =  $rate;
+   $this->overTimeRate = 40;
+ }
+
+}
+
 class PartTime extends Payroll
 {
-  private $overTimeRate = 30;
-  private $salary = 0.00;
-  public function CalculatePayroll(): float
+  
+  use CalCulateEmployeePayRoll;
+  public function __construct($hours, $rate = 50)
   {
-    switch ($this->hours) {
-      case  $this->hours <= self::WORK_HOURS &&  $this->hours > 0:
-        $this->salary =  $this->rate * $this->hours;
-        return  $this->salary;
-        break;
-      case  $this->hours > self::WORK_HOURS:
-        $normalWage =  $this->rate *  self::WORK_HOURS;
-        $this->salary =  $normalWage + (($this->hours - self::WORK_HOURS) * $this->overTimeRate);
-        return $this->salary;
-        break;
-      default:
-        return $this->salary;
-        break;
-    }
+    $this->hours = $hours;
+    $this->rate =  $rate;
+    $this->overTimeRate = 30;
   }
+
 }
 
 function collectInput()
@@ -88,13 +90,13 @@ function runStaffPayRoll()
     if ($run == "exit") {
       break;
     }
-    echo "\n\n $blue WELCOME TO PAYROLL APPLICATION \n";
-    echo "******************************\n\n";
+    echo "\n\n{$blue}WELCOME TO PAYROLL APPLICATION \n";
+    echo str_repeat("*",30)."\n\n";
     echo "Please select employee status.\n\n";
     echo "1. FULL TIME EMPLOYEES\n";
     echo "2. PART TIME EMPLOYEES\n $concat";
     echo "$yellow NB: If you wish to use default rate leave empty and press enter\n";
-    echo "        TYPE CMD+C exit program $concat \n\n";
+    echo "      TYPE CMD+C exit program $concat \n\n";
     do {
       $employeeStatus = collectInput();
       if ($employeeStatus <> "1" && $employeeStatus <> "2") {
